@@ -6,7 +6,7 @@
   transition: transform 0.35s var(--spring), box-shadow 0.35s var(--ease);
 }
 .card:active { transform: scale(0.985); }
-.card-thumb { position: relative; flex: 0 0 118px; min-height: 138px; overflow: hidden; }
+.card-thumb { position: relative; flex: 0 0 42%; max-width: 170px; min-height: 148px; overflow: hidden; }
 .card-thumb .gallery-dots { bottom: 7px; padding: 3px 5px; gap: 3px; }
 .card-thumb .gallery-dots span { width: 5px; height: 5px; }
 .card-thumb .gallery-dots span.on { width: 11px; }
@@ -87,3 +87,12 @@
 .bottomnav { grid-template-columns: repeat(5, 1fr); width: min(calc(100% - 20px), 460px); }
 .bn-ind { width: calc((100% - 12px) / 5); }
 .bn { font-size: 10.5px; }
+
+/* galerie v3 : slider tactile (transform) */
+.gallery { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.gallery-track { overflow: visible; scroll-snap-type: none; transition: transform 0.4s var(--ease); will-change: transform; }
+.gallery-track.dragging { transition: none; }
+.gallery-slide img { pointer-events: none; }
+.g-arrow.sm { width: 26px; height: 26px; font-size: 18px; background: rgba(255, 255, 255, 0.78); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); }
+.g-arrow.sm.left { left: 6px; }
+.g-arrow.sm.right { right: 6px; }

@@ -26,37 +26,76 @@ export function Photo({ srcs = [], alt, sizes = "100vw", priority = false, class
   );
 }
 
-// Galerie : swipe gauche/droite (scroll-snap natif) + flèches optionnelles
+// Galerie : swipe gauche/droite au doigt (sans ouvrir la fiche) + flèches
 export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, arrows = false, className = "" }) {
-  const ref = useRef(null);
   const [idx, setIdx] = useState(0);
+  const [dx, setDx] = useState(0);
   const [broken, setBroken] = useState({});
+  const t = useRef({ x: 0, y: 0, dir: null, swiped: false });
   const list = photos.filter((p) => !broken[p]);
+  const n = list.length;
+  const cur = Math.min(idx, Math.max(0, n - 1));
 
-  const onScroll = () => {
-    const el = ref.current;
-    if (el) setIdx(Math.round(el.scrollLeft / el.clientWidth));
+  const go = (d) => setIdx((i) => Math.max(0, Math.min(n - 1, i + d)));
+  const onStart = (e) => {
+    t.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null, swiped: false };
   };
-  const go = (dir, e) => {
+  const onMove = (e) => {
+    const c = t.current;
+    const mx = e.touches[0].clientX - c.x;
+    const my = e.touches[0].clientY - c.y;
+    if (!c.dir && (Math.abs(mx) > 8 || Math.abs(my) > 8)) c.dir = Math.abs(mx) > Math.abs(my) ? "x" : "y";
+    if (c.dir === "x") {
+      e.stopPropagation();
+      // résistance aux extrémités
+      const edge = (cur === 0 && mx > 0) || (cur === n - 1 && mx < 0);
+      setDx(edge ? mx * 0.3 : mx);
+    }
+  };
+  const onEnd = (e) => {
+    const c = t.current;
+    if (c.dir === "x") {
+      e.stopPropagation();
+      c.swiped = true;
+      if (dx < -35) go(1);
+      else if (dx > 35) go(-1);
+    }
+    setDx(0);
+  };
+  // un swipe ne doit pas ouvrir la fiche
+  const onClickCapture = (e) => {
+    if (t.current.swiped) {
+      e.stopPropagation();
+      e.preventDefault();
+      t.current.swiped = false;
+    }
+  };
+  const arrow = (d) => (e) => {
     e.stopPropagation();
-    const el = ref.current;
-    if (!el) return;
-    const n = Math.max(0, Math.min(list.length - 1, idx + dir));
-    el.scrollTo({ left: n * el.clientWidth, behavior: "smooth" });
+    go(d);
   };
 
-  if (!list.length) return <div className={`gallery ${className}`}><div className="photo-fallback" /></div>;
+  if (!n) return <div className={`gallery ${className}`}><div className="photo-fallback" /></div>;
   return (
-    <div className={`gallery ${className}`}>
-      <div className="gallery-track" ref={ref} onScroll={onScroll}>
-        {list.map((p, n) => (
+    <div
+      className={`gallery ${className}`}
+      onTouchStart={onStart}
+      onTouchMove={onMove}
+      onTouchEnd={onEnd}
+      onClickCapture={onClickCapture}
+    >
+      <div
+        className={`gallery-track ${dx ? "dragging" : ""}`}
+        style={{ transform: `translateX(calc(${-cur * 100}% + ${dx}px))` }}
+      >
+        {list.map((p, k) => (
           <div className="gallery-slide" key={p}>
             <Image
               src={p}
-              alt={`${alt} · photo ${n + 1}`}
+              alt={`${alt} · photo ${k + 1}`}
               fill
               sizes={sizes}
-              priority={priority && n === 0}
+              priority={priority && k === 0}
               className="photo is-loaded"
               draggable={false}
               onError={() => setBroken((b) => ({ ...b, [p]: true }))}
@@ -64,16 +103,16 @@ export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, a
           </div>
         ))}
       </div>
-      {arrows && list.length > 1 && (
+      {n > 1 && (
         <>
-          <button className="g-arrow left" onClick={(e) => go(-1, e)} disabled={idx === 0} aria-label="Photo précédente">‹</button>
-          <button className="g-arrow right" onClick={(e) => go(1, e)} disabled={idx >= list.length - 1} aria-label="Photo suivante">›</button>
+          <button className={`g-arrow left ${arrows ? "" : "sm"}`} onClick={arrow(-1)} disabled={cur === 0} aria-label="Photo précédente">‹</button>
+          <button className={`g-arrow right ${arrows ? "" : "sm"}`} onClick={arrow(1)} disabled={cur >= n - 1} aria-label="Photo suivante">›</button>
         </>
       )}
-      {list.length > 1 && (
+      {n > 1 && (
         <div className="gallery-dots" aria-hidden>
-          {list.map((p, n) => (
-            <span key={p} className={n === idx ? "on" : ""} />
+          {list.map((p, k) => (
+            <span key={p} className={k === cur ? "on" : ""} />
           ))}
         </div>
       )}
