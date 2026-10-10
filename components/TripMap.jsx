@@ -37,10 +37,22 @@ export default function TripMap({ groups, activeId, onSelect, height = 260, clas
           attributionControl: true,
           scrollWheelZoom: false,
         });
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        // Fond de carte gratuit sans clé : OpenStreetMap, repli automatique sur Esri si erreur
+        const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
-          attribution: "© OpenStreetMap · © CARTO",
+          attribution: "© OpenStreetMap",
         }).addTo(map.current);
+        let errors = 0;
+        osm.on("tileerror", () => {
+          errors += 1;
+          if (errors === 4 && map.current) {
+            map.current.removeLayer(osm);
+            L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+              maxZoom: 19,
+              attribution: "© Esri",
+            }).addTo(map.current);
+          }
+        });
         layer.current = L.layerGroup().addTo(map.current);
         setReady(true);
       })

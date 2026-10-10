@@ -96,3 +96,6 @@
 .g-arrow.sm { width: 26px; height: 26px; font-size: 18px; background: rgba(255, 255, 255, 0.78); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); }
 .g-arrow.sm.left { left: 6px; }
 .g-arrow.sm.right { right: 6px; }
+
+/* carte : teinte douce assortie à la palette */
+.leaflet-tile-pane { filter: saturate(0.65) sepia(0.12) brightness(1.04) contrast(0.95); }
