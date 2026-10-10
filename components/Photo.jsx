@@ -57,6 +57,9 @@ export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, a
     if (c.dir === "x") {
       e.stopPropagation();
       c.swiped = true;
+      setTimeout(() => {
+        c.swiped = false;
+      }, 350);
       if (dx < -35) go(1);
       else if (dx > 35) go(-1);
     }
