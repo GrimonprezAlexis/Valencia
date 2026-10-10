@@ -136,7 +136,7 @@ function Hero({ now, onGo }) {
         <h1 className="rise" style={{ "--d": "160ms" }}>
           Weekend<br /><em>Valencia</em>
         </h1>
-        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Soleil, rooftops, paella et l&apos;anniversaire de Malvine.</p>
+        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Soleil, rooftops, paella et l&apos;anniversaire de Sandra.</p>
         <div className="hero-row rise" style={{ "--d": "320ms" }}>
           {days != null && days > 0 && (
             <span className="pill glass">
@@ -213,7 +213,7 @@ function Programme({ dayId, onDay, onOpen }) {
           <div className="bday rise">
             <span className="bday-cake">🎂</span>
             <div>
-              <b>Joyeux anniversaire Malvine</b>
+              <b>Joyeux anniversaire Sandra</b>
               <span>Aujourd&apos;hui, c&apos;est ta journée ✨</span>
             </div>
           </div>
