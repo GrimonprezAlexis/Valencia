@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./extra.css";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 
 const display = Cormorant_Garamond({
@@ -15,9 +16,9 @@ const body = Manrope({
 });
 
 export const metadata = {
-  title: "Malvine à Valence · 6 → 9 nov.",
-  description: "Week-end d'anniversaire à Valence : programme jour par jour, carte, photos, budget et réservations.",
-  appleWebApp: { capable: true, title: "Valence", statusBarStyle: "black-translucent" },
+  title: "Weekend Valencia · 6 → 9 nov.",
+  description: "Weekend Valencia : programme jour par jour, carte, photos, budget et réservations.",
+  appleWebApp: { capable: true, title: "Valencia", statusBarStyle: "black-translucent" },
   manifest: "/manifest.webmanifest",
 };
 

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-// Image distante optimisée par Vercel, avec repli automatique sur la photo suivante
 export function Photo({ srcs = [], alt, sizes = "100vw", priority = false, className = "" }) {
   const [i, setI] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -27,17 +26,25 @@ export function Photo({ srcs = [], alt, sizes = "100vw", priority = false, class
   );
 }
 
-// Galerie swipe (scroll-snap) avec points
-export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, className = "" }) {
+// Galerie : swipe gauche/droite (scroll-snap natif) + flèches optionnelles
+export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, arrows = false, className = "" }) {
   const ref = useRef(null);
   const [idx, setIdx] = useState(0);
   const [broken, setBroken] = useState({});
   const list = photos.filter((p) => !broken[p]);
+
   const onScroll = () => {
     const el = ref.current;
-    if (!el) return;
-    setIdx(Math.round(el.scrollLeft / el.clientWidth));
+    if (el) setIdx(Math.round(el.scrollLeft / el.clientWidth));
   };
+  const go = (dir, e) => {
+    e.stopPropagation();
+    const el = ref.current;
+    if (!el) return;
+    const n = Math.max(0, Math.min(list.length - 1, idx + dir));
+    el.scrollTo({ left: n * el.clientWidth, behavior: "smooth" });
+  };
+
   if (!list.length) return <div className={`gallery ${className}`}><div className="photo-fallback" /></div>;
   return (
     <div className={`gallery ${className}`}>
@@ -51,11 +58,18 @@ export function Gallery({ photos = [], alt, sizes = "100vw", priority = false, c
               sizes={sizes}
               priority={priority && n === 0}
               className="photo is-loaded"
+              draggable={false}
               onError={() => setBroken((b) => ({ ...b, [p]: true }))}
             />
           </div>
         ))}
       </div>
+      {arrows && list.length > 1 && (
+        <>
+          <button className="g-arrow left" onClick={(e) => go(-1, e)} disabled={idx === 0} aria-label="Photo précédente">‹</button>
+          <button className="g-arrow right" onClick={(e) => go(1, e)} disabled={idx >= list.length - 1} aria-label="Photo suivante">›</button>
+        </>
+      )}
       {list.length > 1 && (
         <div className="gallery-dots" aria-hidden>
           {list.map((p, n) => (

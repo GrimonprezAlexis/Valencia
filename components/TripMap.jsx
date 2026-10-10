@@ -20,9 +20,6 @@ function loadLeaflet() {
   return leafletPromise;
 }
 
-/**
- * groups: [{ color, stops: [{id, lat, lng, name, n}] , route: bool }]
- */
 export default function TripMap({ groups, activeId, onSelect, height = 260, className = "" }) {
   const el = useRef(null);
   const map = useRef(null);
@@ -39,7 +36,6 @@ export default function TripMap({ groups, activeId, onSelect, height = 260, clas
           zoomControl: false,
           attributionControl: true,
           scrollWheelZoom: false,
-          tap: true,
         });
         L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
           maxZoom: 19,
@@ -58,9 +54,8 @@ export default function TripMap({ groups, activeId, onSelect, height = 260, clas
     };
   }, []);
 
-  // Dessin des points + tracé
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !map.current) return;
     const L = window.L;
     layer.current.clearLayers();
     markers.current = {};
@@ -92,9 +87,8 @@ export default function TripMap({ groups, activeId, onSelect, height = 260, clas
     setTimeout(() => map.current && map.current.invalidateSize(), 60);
   }, [ready, groups, onSelect]);
 
-  // Point actif : zoom doux
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !map.current) return;
     Object.entries(markers.current).forEach(([id, m]) => {
       const node = m.getElement();
       if (node) node.classList.toggle("is-active", id === activeId);
