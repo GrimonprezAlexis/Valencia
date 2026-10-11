@@ -16,9 +16,9 @@ const body = Manrope({
 });
 
 export const metadata = {
-  title: "Weekend Valencia · 6 → 9 nov.",
-  description: "Weekend Valencia : programme jour par jour, carte, photos, budget et réservations.",
-  appleWebApp: { capable: true, title: "Valencia", statusBarStyle: "black-translucent" },
+  title: "Weekend Madrid · 6 → 9 nov.",
+  description: "Weekend Madrid : programme jour par jour, carte, photos, budget et réservations.",
+  appleWebApp: { capable: true, title: "Madrid", statusBarStyle: "black-translucent" },
   manifest: "/manifest.webmanifest",
 };
 

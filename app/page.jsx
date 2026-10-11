@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TripMap from "@/components/TripMap";
 import { Gallery, Photo } from "@/components/Photo";
 import { TRIP, DAYS, BUDGET, BOOKINGS, HOTELS } from "@/lib/data";
-import { ADVICE, INFOS } from "@/lib/extra";
+import { ADVICE, INFOS, DEADLINES, COMPARE, TRADEOFFS } from "@/lib/extra";
 
 const TZ = "+01:00";
 
@@ -14,12 +14,12 @@ function stopDate(day, stop) {
 }
 
 const mapsPlace = (s) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} Valencia`)}${s.placeId ? `&query_place_id=${s.placeId}` : ""}`;
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} Madrid`)}${s.placeId ? `&query_place_id=${s.placeId}` : ""}`;
 const mapsQuery = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 const mapsGo = (s, mode = "walking") =>
   `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}${s.placeId ? `&destination_place_id=${s.placeId}` : ""}&travelmode=${mode}`;
 const mapsEmbed = (s) =>
-  `https://maps.google.com/maps?q=${encodeURIComponent(`${s.name}, ${s.address || ""}, Valencia`)}&z=16&output=embed`;
+  `https://maps.google.com/maps?q=${encodeURIComponent(`${s.name}, ${s.address || ""}, Madrid`)}&z=16&output=embed`;
 const uberTo = (s) =>
   `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${s.lat}&dropoff[longitude]=${s.lng}&dropoff[nickname]=${encodeURIComponent(s.name)}`;
 const dayRoute = (day) => {
@@ -128,22 +128,22 @@ function Hero({ now, onGo }) {
   return (
     <header className="hero">
       <div className="hero-img">
-        <Photo srcs={[TRIP.hero]} alt="Rooftop à Valence au coucher du soleil" priority sizes="(max-width: 640px) 100vw, 640px" />
+        <Photo srcs={[TRIP.hero]} alt="Rooftop à Madrid au coucher du soleil" priority sizes="(max-width: 640px) 100vw, 640px" />
       </div>
       <div className="hero-shade" />
       <div className="hero-content">
         <p className="eyebrow rise" style={{ "--d": "80ms" }}>6 → 9 novembre 2026</p>
         <h1 className="rise" style={{ "--d": "160ms" }}>
-          Weekend<br /><em>Valencia</em>
+          Weekend<br /><em>Madrid</em>
         </h1>
-        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Soleil, rooftops, paella et l&apos;anniversaire de Sandra.</p>
+        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Rooftops, tapas, Retiro et l&apos;anniversaire de Sandra.</p>
         <div className="hero-row rise" style={{ "--d": "320ms" }}>
           {days != null && days > 0 && (
             <span className="pill glass">
               <b>J-{days}</b> avant le départ
             </span>
           )}
-          <span className="pill glass">☀️ ≈ 20 °C</span>
+          <span className="pill glass">🌤️ ≈ 15 °C</span>
         </div>
         <button className="hero-cta rise" style={{ "--d": "400ms" }} onClick={onGo}>
           Voir le programme <span aria-hidden>↓</span>
@@ -554,7 +554,7 @@ function BudgetView() {
         ))}
       </ul>
       <div className="note-card rise" style={{ "--d": "420ms" }}>
-        <b>Vol</b> easyJet GVA ⇄ VLC ≈ 97 CHF / pers. · <b>Hôtel</b> ≈ 150–180 € / pers. (3 nuits)
+        {BUDGET.extra}
       </div>
     </section>
   );
@@ -608,26 +608,6 @@ function ResaView() {
         ))}
       </ul>
 
-      <div className="page-head" style={{ marginTop: 34 }}>
-        <p className="eyebrow">Hôtel</p>
-        <h2>Les deux options</h2>
-      </div>
-      <div className="hotels">
-        {HOTELS.map((h, i) => (
-          <article key={h.id} className="hotel rise" style={{ "--d": `${i * 80}ms` }}>
-            <div className="hotel-media">
-              <Gallery photos={h.photos} alt={h.name} sizes="(max-width: 640px) 90vw, 300px" arrows />
-            </div>
-            <div className="hotel-body">
-              <p className="kind">{h.area}</p>
-              <h3>{h.name}</h3>
-              <p className="price">{h.price}</p>
-              <ul>{h.perks.map((p) => <li key={p}>{p}</li>)}</ul>
-              <a className="btn primary full" href={h.url} target="_blank" rel="noopener">Voir sur Booking ↗</a>
-            </div>
-          </article>
-        ))}
-      </div>
     </section>
   );
 }
@@ -639,9 +619,71 @@ function InfosView() {
   return (
     <section className="page">
       <div className="page-head rise">
-        <p className="eyebrow">Conseils</p>
+        <p className="eyebrow">Infos</p>
         <h2>Bon à savoir</h2>
       </div>
+
+      <h3 className="sub-title first rise">À décider maintenant</h3>
+      <ul className="deadlines">
+        {DEADLINES.map((d, i) => (
+          <li key={d.title} className="deadline rise" style={{ "--d": `${40 + i * 40}ms` }}>
+            <span className="deadline-icon">{d.icon}</span>
+            <div>
+              <b>{d.title}</b>
+              <p>{d.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="sub-title rise">Hôtel · nos 3 choix</h3>
+      <div className="hotels">
+        {HOTELS.map((h, i) => (
+          <article key={h.id} className={`hotel rise ${h.recommended ? "reco" : ""}`} style={{ "--d": `${i * 80}ms` }}>
+            <div className="hotel-media">
+              <Gallery photos={h.photos} alt={h.name} sizes="(max-width: 640px) 90vw, 400px" arrows />
+              {h.recommended && <span className="reco-badge">Notre choix</span>}
+            </div>
+            <div className="hotel-body">
+              <p className="kind">{h.area}</p>
+              <h3>{h.name}</h3>
+              <p className="hotel-score">★ {h.score}</p>
+              <p className="price">{h.price}</p>
+              <ul className="pros">{h.perks.map((p) => <li key={p}>{p}</li>)}</ul>
+              <ul className="cons">{h.cons.map((p) => <li key={p}>{p}</li>)}</ul>
+              <div className="hotel-actions">
+                <a className="btn primary" href={h.url} target="_blank" rel="noopener">Réserver ↗</a>
+                <a className="btn" href={mapsQuery(`${h.name} Madrid`)} target="_blank" rel="noopener">📍 Carte</a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p className="fine">Prix relevés le 11 octobre pour 2 personnes, du 6 au 9 novembre. Ils changent vite ce week-end-là.</p>
+
+      <h3 className="sub-title rise">Valence → Madrid</h3>
+      <div className="compare rise">
+        {COMPARE.map((c) => (
+          <div className="cmp-row" key={c.theme}>
+            <span className="cmp-theme">{c.theme}</span>
+            <span className="cmp-from">{c.valence}</span>
+            <span className="cmp-to">→ {c.madrid}</span>
+            <small>{c.note}</small>
+          </div>
+        ))}
+      </div>
+      <div className="tradeoffs rise">
+        <div className="to plus">
+          <b>Ce qu&apos;on gagne</b>
+          <ul>{TRADEOFFS.plus.map((t) => <li key={t}>{t}</li>)}</ul>
+        </div>
+        <div className="to minus">
+          <b>Ce qu&apos;on perd</b>
+          <ul>{TRADEOFFS.minus.map((t) => <li key={t}>{t}</li>)}</ul>
+        </div>
+      </div>
+
+      <h3 className="sub-title rise">Urgences</h3>
 
       <div className="sos rise" style={{ "--d": "60ms" }}>
         <a className="sos-main" href="tel:112">

@@ -1,4 +1,4 @@
-/* Weekend Valencia — v2 : cartes compactes, conseil du jour, page Infos */
+/* Weekend Madrid — styles additionnels */
 .card {
   display: flex; gap: 0; align-items: stretch;
   background: var(--card); border-radius: 20px; overflow: hidden;
@@ -99,3 +99,39 @@
 
 /* carte : teinte douce assortie à la palette */
 .leaflet-tile-pane { filter: saturate(0.65) sepia(0.12) brightness(1.04) contrast(0.95); }
+
+/* ————— v4 Madrid : décisions, hôtels, comparatif ————— */
+.sub-title.first { margin-top: 4px; }
+.deadlines { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+.deadline { display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px; border-radius: 18px; background: linear-gradient(135deg, #fff6ec, #fde9ee); border: 1px solid #f6dcd6; }
+.deadline-icon { font-size: 20px; line-height: 1.25; }
+.deadline b { display: block; font-size: 14.5px; }
+.deadline p { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.hotels { margin-top: 10px; }
+.hotel.reco { box-shadow: 0 0 0 2px var(--rose), var(--shadow); }
+.hotel-media { position: relative; }
+.reco-badge { position: absolute; z-index: 4; top: 12px; left: 12px; background: var(--rose); color: #fff; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 99px; box-shadow: 0 6px 14px -6px rgba(200, 80, 122, 0.9); }
+.hotel-score { font-size: 13px; font-weight: 700; color: var(--gold); margin-top: 2px; }
+.hotel-body .price { display: block; margin-top: 4px; font-size: 14px; }
+.hotel-body ul.pros, .hotel-body ul.cons { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13.5px; }
+.hotel-body ul.pros li, .hotel-body ul.cons li { padding-left: 22px; position: relative; margin-top: 4px; color: var(--ink-2); }
+.hotel-body ul.pros li::before { content: "✓"; position: absolute; left: 2px; color: #3c9a6b; font-weight: 800; }
+.hotel-body ul.cons li::before { content: "–"; position: absolute; left: 4px; color: var(--muted); font-weight: 800; }
+.hotel-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; margin-top: 14px; }
+.fine { font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
+.compare { margin-top: 10px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.cmp-row { display: grid; grid-template-columns: 1fr; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.cmp-row:last-child { border-bottom: 0; }
+.cmp-theme { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rose); }
+.cmp-from { font-size: 13px; color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(143, 122, 133, 0.5); margin-top: 2px; }
+.cmp-to { font-size: 15px; font-weight: 800; color: var(--ink); }
+.cmp-row small { font-size: 12px; color: var(--ink-2); margin-top: 1px; }
+.tradeoffs { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+@media (min-width: 520px) { .tradeoffs { grid-template-columns: 1fr 1fr; } }
+.to { border-radius: 18px; padding: 13px 14px; }
+.to b { font-size: 13px; font-weight: 800; }
+.to ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.to.plus { background: #e9f6ef; }
+.to.plus b { color: #2f7d55; }
+.to.minus { background: var(--bg-2); }
+.to.minus b { color: var(--muted); }
