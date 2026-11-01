@@ -4,13 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TripMap from "@/components/TripMap";
 import { Gallery, Photo } from "@/components/Photo";
 import { TRIP, DAYS, BUDGET, BOOKINGS, HOTELS } from "@/lib/data";
-import { ADVICE, INFOS, DEADLINES, COMPARE, TRADEOFFS } from "@/lib/extra";
+import { ADVICE, INFOS, DEADLINES, NIGHT } from "@/lib/extra";
 
 const TZ = "+01:00";
 
 function stopDate(day, stop) {
   const [h, m] = stop.time.split(":");
-  return new Date(`${day.date}T${h.padStart(2, "0")}:${m}:00${TZ}`);
+  const d = new Date(`${day.date}T${h.padStart(2, "0")}:${m}:00${TZ}`);
+  if (stop.nextDay) d.setDate(d.getDate() + 1);
+  return d;
 }
 
 const mapsPlace = (s) =>
@@ -53,9 +55,18 @@ function save(key, v) {
 
 const NUMBERED = DAYS.map((d) => {
   let n = 0;
-  return { ...d, stops: d.stops.map((s) => (s.lat ? { ...s, n: ++n } : s)) };
+  return {
+    ...d,
+    stops: d.stops.map((s) => {
+      if (s.options) return { ...s, options: s.options.map((o, k) => ({ ...o, n: s.icon || String.fromCharCode(65 + k), time: s.time, parent: s })) };
+      return s.lat ? { ...s, n: ++n } : s;
+    }),
+  };
 });
-const ALL_STOPS = NUMBERED.flatMap((d) => d.stops.filter((s) => s.lat).map((s) => ({ ...s, day: d })));
+const optionStops = (d) => d.stops.flatMap((s) => s.options || []);
+const ALL_STOPS = NUMBERED.flatMap((d) =>
+  d.stops.flatMap((s) => (s.options ? s.options : s.lat ? [s] : [])).map((s) => ({ ...s, day: d }))
+);
 
 function useNow(ms = 30000) {
   const [now, setNow] = useState(null);
@@ -136,7 +147,7 @@ function Hero({ now, onGo }) {
         <h1 className="rise" style={{ "--d": "160ms" }}>
           Weekend<br /><em>Madrid</em>
         </h1>
-        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Rooftops, tapas, Retiro et l&apos;anniversaire de Sandra.</p>
+        <p className="hero-sub rise" style={{ "--d": "240ms" }}>Tapas, shopping, rooftop et l&apos;anniversaire de Sandra 🎂</p>
         <div className="hero-row rise" style={{ "--d": "320ms" }}>
           {days != null && days > 0 && (
             <span className="pill glass">
@@ -203,7 +214,13 @@ function NowCard({ now, onOpen, onDay }) {
 
 function Programme({ dayId, onDay, onOpen }) {
   const day = NUMBERED.find((d) => d.id === dayId) || NUMBERED[0];
-  const groups = useMemo(() => [{ color: day.color, stops: day.stops, route: true }], [day]);
+  const groups = useMemo(
+    () => [
+      { color: day.color, stops: day.stops, route: true },
+      { color: day.color, stops: optionStops(day), route: false },
+    ],
+    [day]
+  );
   const route = dayRoute(day);
   return (
     <section className="programme" id="days">
@@ -234,7 +251,7 @@ function Programme({ dayId, onDay, onOpen }) {
           </div>
         )}
 
-        {day.stops.some((s) => s.lat) && (
+        {day.stops.some((s) => s.lat || s.options) && (
           <div className="day-map rise" style={{ "--d": "100ms" }}>
             <TripMap groups={groups} onSelect={onOpen} height={200} />
             {route && (
@@ -326,6 +343,39 @@ function useReveal() {
 
 function StopItem({ s, i, onOpen }) {
   const [ref, seen] = useReveal();
+  if (s.options) {
+    return (
+      <li ref={ref} className={`stop reveal ${seen ? "in" : ""}`} style={{ "--i": i }}>
+        <span className="stop-dot">{s.icon}</span>
+        <Leg leg={s.before} />
+        <div className="choice">
+          <div className="choice-head">
+            <span className="time-chip">{s.time}</span>
+            <h3>{s.name}</h3>
+            <p className="kind">{s.kind}</p>
+            <p className="choice-desc">{s.desc}</p>
+          </div>
+          <ul className="choice-list">
+            {s.options.map((o) => (
+              <li key={o.id} className="choice-opt" onClick={() => onOpen(o.id)}>
+                <div className="choice-img">
+                  <Photo srcs={o.photos} alt={o.name} sizes="72px" />
+                </div>
+                <div className="choice-txt">
+                  <span className="choice-tag">{o.tag}</span>
+                  <b>{o.name}</b>
+                  <span>{o.kind}</span>
+                  <small>{o.price}{o.rating ? ` · ★ ${o.rating.toFixed(1)}` : ""}</small>
+                </div>
+                <span className="chev">›</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <Leg leg={s.next} />
+      </li>
+    );
+  }
   if (!s.lat) {
     return (
       <li ref={ref} className={`stop info reveal ${seen ? "in" : ""}`}>
@@ -419,7 +469,7 @@ function Sheet({ stop, onClose }) {
         </div>
         <div className="sheet-body">
           <p className="kind" style={{ color: s.day ? s.day.color : undefined }}>
-            {s.day ? s.day.label : ""} · {s.time}
+            {s.day ? s.day.label : ""} · {s.time}{s.parent ? ` · ${s.parent.name}` : ""}
           </p>
           <h2>{s.name}</h2>
           <div className="sheet-meta">
@@ -475,11 +525,10 @@ function MapView({ onOpen }) {
   const [filter, setFilter] = useState("all");
   const groups = useMemo(
     () =>
-      NUMBERED.filter((d) => filter === "all" || d.id === filter).map((d) => ({
-        color: d.color,
-        stops: d.stops,
-        route: filter !== "all",
-      })),
+      NUMBERED.filter((d) => filter === "all" || d.id === filter).flatMap((d) => [
+        { color: d.color, stops: d.stops, route: filter !== "all" },
+        { color: d.color, stops: optionStops(d), route: false },
+      ]),
     [filter]
   );
   const list = ALL_STOPS.filter((s) => filter === "all" || s.day.id === filter);
@@ -491,7 +540,7 @@ function MapView({ onOpen }) {
       </div>
       <div className="chips rise" style={{ "--d": "60ms" }}>
         <button className={`fchip ${filter === "all" ? "on" : ""}`} onClick={() => setFilter("all")}>Tout</button>
-        {NUMBERED.filter((d) => d.stops.some((s) => s.lat)).map((d) => (
+        {NUMBERED.filter((d) => d.stops.some((s) => s.lat || s.options)).map((d) => (
           <button key={d.id} className={`fchip ${filter === d.id ? "on" : ""}`} onClick={() => setFilter(d.id)}>
             <i style={{ background: d.color }} /> {d.short}
           </button>
@@ -623,7 +672,7 @@ function InfosView() {
         <h2>Bon à savoir</h2>
       </div>
 
-      <h3 className="sub-title first rise">À décider maintenant</h3>
+      <h3 className="sub-title first rise">À faire maintenant</h3>
       <ul className="deadlines">
         {DEADLINES.map((d, i) => (
           <li key={d.title} className="deadline rise" style={{ "--d": `${40 + i * 40}ms` }}>
@@ -636,7 +685,7 @@ function InfosView() {
         ))}
       </ul>
 
-      <h3 className="sub-title rise">Hôtel · nos 3 choix</h3>
+      <h3 className="sub-title rise">Hôtel</h3>
       <div className="hotels">
         {HOTELS.map((h, i) => (
           <article key={h.id} className={`hotel rise ${h.recommended ? "reco" : ""}`} style={{ "--d": `${i * 80}ms` }}>
@@ -659,29 +708,20 @@ function InfosView() {
           </article>
         ))}
       </div>
-      <p className="fine">Prix relevés le 11 octobre pour 2 personnes, du 6 au 9 novembre. Ils changent vite ce week-end-là.</p>
+      
 
-      <h3 className="sub-title rise">Valence → Madrid</h3>
-      <div className="compare rise">
-        {COMPARE.map((c) => (
-          <div className="cmp-row" key={c.theme}>
-            <span className="cmp-theme">{c.theme}</span>
-            <span className="cmp-from">{c.valence}</span>
-            <span className="cmp-to">→ {c.madrid}</span>
-            <small>{c.note}</small>
-          </div>
+      <h3 className="sub-title rise">Soirées · les conseils de Sandra</h3>
+      <ul className="deadlines">
+        {NIGHT.map((d, i) => (
+          <li key={d.title} className="deadline rise" style={{ "--d": `${40 + i * 40}ms` }}>
+            <span className="deadline-icon">{d.icon}</span>
+            <div>
+              <b>{d.title}</b>
+              <p>{d.text}</p>
+            </div>
+          </li>
         ))}
-      </div>
-      <div className="tradeoffs rise">
-        <div className="to plus">
-          <b>Ce qu&apos;on gagne</b>
-          <ul>{TRADEOFFS.plus.map((t) => <li key={t}>{t}</li>)}</ul>
-        </div>
-        <div className="to minus">
-          <b>Ce qu&apos;on perd</b>
-          <ul>{TRADEOFFS.minus.map((t) => <li key={t}>{t}</li>)}</ul>
-        </div>
-      </div>
+      </ul>
 
       <h3 className="sub-title rise">Urgences</h3>
 
