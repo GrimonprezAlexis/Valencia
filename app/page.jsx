@@ -167,7 +167,7 @@ function Hero({ now, onGo }) {
 function NowCard({ now, onOpen, onDay }) {
   if (!now) return null;
   const start = new Date(TRIP.start);
-  const end = new Date(`2026-11-09T12:00:00${TZ}`);
+  const end = new Date(`2026-11-09T16:00:00${TZ}`);
   if (now < start || now > end) {
     return (
       <section className="now-card flights rise" style={{ "--d": "100ms" }}>
@@ -685,13 +685,13 @@ function InfosView() {
         ))}
       </ul>
 
-      <h3 className="sub-title rise">Hôtel</h3>
+      <h3 className="sub-title rise">Logement</h3>
       <div className="hotels">
         {HOTELS.map((h, i) => (
           <article key={h.id} className={`hotel rise ${h.recommended ? "reco" : ""}`} style={{ "--d": `${i * 80}ms` }}>
             <div className="hotel-media">
               <Gallery photos={h.photos} alt={h.name} sizes="(max-width: 640px) 90vw, 400px" arrows />
-              {h.recommended && <span className="reco-badge">Notre choix</span>}
+              {h.recommended && <span className="reco-badge">{h.booked ? "Réservé" : "Notre choix"}</span>}
             </div>
             <div className="hotel-body">
               <p className="kind">{h.area}</p>
@@ -701,7 +701,7 @@ function InfosView() {
               <ul className="pros">{h.perks.map((p) => <li key={p}>{p}</li>)}</ul>
               <ul className="cons">{h.cons.map((p) => <li key={p}>{p}</li>)}</ul>
               <div className="hotel-actions">
-                <a className="btn primary" href={h.url} target="_blank" rel="noopener">Réserver ↗</a>
+                <a className="btn primary" href={h.url} target="_blank" rel="noopener">{h.booked ? "Itinéraire ↗" : "Réserver ↗"}</a>
                 <a className="btn" href={mapsQuery(`${h.name} Madrid`)} target="_blank" rel="noopener">📍 Carte</a>
               </div>
             </div>
