@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TripMap from "@/components/TripMap";
 import { Gallery, Photo } from "@/components/Photo";
-import { TRIP, DAYS, BUDGET, BOOKINGS, HOTELS } from "@/lib/data";
+import { TRIP, DAYS, BOOKINGS, HOTELS } from "@/lib/data";
 import { ADVICE, INFOS, DEADLINES, NIGHT } from "@/lib/extra";
 
 const TZ = "+01:00";
@@ -120,7 +120,6 @@ export default function Home() {
         </>
       )}
       {tab === "carte" && <MapView onOpen={openStop} />}
-      {tab === "budget" && <BudgetView />}
       {tab === "resa" && <ResaView />}
       {tab === "infos" && <InfosView />}
 
@@ -568,47 +567,6 @@ function MapView({ onOpen }) {
   );
 }
 
-/* ————— Budget ————— */
-
-function BudgetView() {
-  const maxV = Math.max(...BUDGET.items.map((i) => i.max));
-  const [go, setGo] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setGo(true), 120);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <section className="page">
-      <div className="page-head rise">
-        <p className="eyebrow">Budget</p>
-        <h2>Par personne, sur place</h2>
-      </div>
-      <div className="total-card rise" style={{ "--d": "60ms" }}>
-        <span>Total estimé</span>
-        <strong>{BUDGET.total}</strong>
-        <small>{BUDGET.note}</small>
-      </div>
-      <ul className="bars">
-        {BUDGET.items.map((it, i) => (
-          <li key={it.label} className="bar rise" style={{ "--d": `${120 + i * 70}ms` }}>
-            <div className="bar-top">
-              <b>{it.label}</b>
-              <span>{it.min === it.max ? `${it.min} €` : `${it.min}–${it.max} €`}</span>
-            </div>
-            <div className="bar-track">
-              <i style={{ width: go ? `${(it.max / maxV) * 100}%` : 0, transitionDelay: `${i * 90}ms` }} />
-            </div>
-            <small>{it.detail}</small>
-          </li>
-        ))}
-      </ul>
-      <div className="note-card rise" style={{ "--d": "420ms" }}>
-        {BUDGET.extra}
-      </div>
-    </section>
-  );
-}
-
 /* ————— Réservations ————— */
 
 function ResaView() {
@@ -801,7 +759,6 @@ function InfosView() {
 const TABS = [
   { id: "programme", label: "Programme", d: "M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z" },
   { id: "carte", label: "Carte", d: "M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10zM12 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" },
-  { id: "budget", label: "Budget", d: "M4 7h16v12H4zM4 7l2-3h12l2 3M15 13h2" },
   { id: "resa", label: "Résa", d: "M5 12.5l4.5 4.5L19 7.5" },
   { id: "infos", label: "Infos", d: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01" },
 ];

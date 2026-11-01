@@ -84,8 +84,8 @@
 .stop-dot { top: 12px; }
 .leg { padding: 7px 2px 9px; }
 .leg-icon { width: 24px; height: 24px; border-radius: 8px; font-size: 12px; }
-.bottomnav { grid-template-columns: repeat(5, 1fr); width: min(calc(100% - 20px), 460px); }
-.bn-ind { width: calc((100% - 12px) / 5); }
+.bottomnav { grid-template-columns: repeat(4, 1fr); width: min(calc(100% - 20px), 460px); }
+.bn-ind { width: calc((100% - 12px) / 4); }
 .bn { font-size: 10.5px; }
 
 /* galerie v3 : slider tactile (transform) */
