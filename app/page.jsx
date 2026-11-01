@@ -630,7 +630,7 @@ function InfosView() {
         <h2>Bon à savoir</h2>
       </div>
 
-      <h3 className="sub-title first rise">À faire maintenant</h3>
+      <h3 className="sub-title first rise">À faire</h3>
       <ul className="deadlines">
         {DEADLINES.map((d, i) => (
           <li key={d.title} className="deadline rise" style={{ "--d": `${40 + i * 40}ms` }}>
@@ -668,7 +668,7 @@ function InfosView() {
       </div>
       
 
-      <h3 className="sub-title rise">Soirées · les conseils de Sandra</h3>
+      <h3 className="sub-title rise">Soirée</h3>
       <ul className="deadlines">
         {NIGHT.map((d, i) => (
           <li key={d.title} className="deadline rise" style={{ "--d": `${40 + i * 40}ms` }}>
@@ -681,6 +681,34 @@ function InfosView() {
         ))}
       </ul>
 
+      <h3 className="sub-title rise" style={{ "--d": "160ms" }}>Pratique</h3>
+      <ul className="acc">
+        {INFOS.sections.map((sec, i) => (
+          <li key={sec.title} className={`acc-item rise ${openIdx === i ? "open" : ""}`} style={{ "--d": `${180 + i * 30}ms` }}>
+            <button className="acc-head" onClick={() => setOpenIdx(openIdx === i ? -1 : i)} aria-expanded={openIdx === i}>
+              <span className="acc-icon">{sec.icon}</span>
+              <b>{sec.title}</b>
+              <span className="acc-chev">⌄</span>
+            </button>
+            <div className="acc-body">
+              <ul>
+                {sec.items.map((it) => <li key={it}>{it}</li>)}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="sub-title rise">Espagnol</h3>
+      <ul className="phrases">
+        {INFOS.phrases.map((p, i) => (
+          <li key={p.es} className="phrase rise" style={{ "--d": `${i * 30}ms` }}>
+            <span>{p.fr}</span>
+            <b>{p.es}</b>
+          </li>
+        ))}
+      </ul>
+
       <h3 className="sub-title rise">Urgences</h3>
 
       <div className="sos rise" style={{ "--d": "60ms" }}>
@@ -688,7 +716,7 @@ function InfosView() {
           <span className="sos-num">112</span>
           <span>
             <b>Urgences</b>
-            <small>Police, ambulance, pompiers · gratuit</small>
+            <small>Police, ambulance, pompiers</small>
           </span>
           <span className="sos-call">Appeler</span>
         </a>
@@ -707,49 +735,6 @@ function InfosView() {
         </ul>
       </div>
 
-      <h3 className="sub-title rise" style={{ "--d": "100ms" }}>Hôpitaux</h3>
-      <ul className="mini-list" style={{ marginTop: 8 }}>
-        {INFOS.health.map((h, i) => (
-          <li key={h.name} className="mini rise" style={{ "--d": `${120 + i * 40}ms` }}>
-            <a className="mini-link" href={mapsQuery(h.q)} target="_blank" rel="noopener">
-              <span className="mini-emoji">🏥</span>
-              <div className="mini-txt">
-                <b>{h.name}</b>
-                <span>{h.detail}</span>
-              </div>
-              <span className="chev">›</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-
-      <h3 className="sub-title rise" style={{ "--d": "160ms" }}>À savoir</h3>
-      <ul className="acc">
-        {INFOS.sections.map((sec, i) => (
-          <li key={sec.title} className={`acc-item rise ${openIdx === i ? "open" : ""}`} style={{ "--d": `${180 + i * 30}ms` }}>
-            <button className="acc-head" onClick={() => setOpenIdx(openIdx === i ? -1 : i)} aria-expanded={openIdx === i}>
-              <span className="acc-icon">{sec.icon}</span>
-              <b>{sec.title}</b>
-              <span className="acc-chev">⌄</span>
-            </button>
-            <div className="acc-body">
-              <ul>
-                {sec.items.map((it) => <li key={it}>{it}</li>)}
-              </ul>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <h3 className="sub-title rise">Phrases utiles</h3>
-      <ul className="phrases">
-        {INFOS.phrases.map((p, i) => (
-          <li key={p.es} className="phrase rise" style={{ "--d": `${i * 30}ms` }}>
-            <span>{p.fr}</span>
-            <b>{p.es}</b>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
